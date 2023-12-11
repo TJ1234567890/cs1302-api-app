@@ -157,6 +157,8 @@ public class ApiApp extends Application {
             System.out.println(details.length);
             if (details.length == 1) {
                 AirportDetails airport = details[0];
+                System.out.println("1");
+                createIQAirLink(airport);
             } else {
                 Platform.runLater(() -> this.textFlow.getChildren().clear());
                 String print = "There is no airport named \"" + text + "\" you were looking for:\n";
@@ -179,10 +181,10 @@ public class ApiApp extends Application {
     }
 
     private void createIQAirLink(AirportDetails airport) {
-        String lat = (String) airport.latitude;
-        String lon = (String) airport.longitude;
+        String lat =  airport.latitude;
+        String lon =  airport.longitude;
 
-        String latTra = URLEncoder.econde(lat, StandardCharsets.UTF_8);
+        String latTra = URLEncoder.encode(lat, StandardCharsets.UTF_8);
         String lonTra = URLEncoder.encode(lon, StandardCharsets.UTF_8);
         String query = String.format("lat=%s&lon=%s&key=%s", latTra, lonTra, iqAirApiKey);
         String uri = iqAirApi + query;
@@ -196,6 +198,8 @@ public class ApiApp extends Application {
 
             String jsonString = response.body();
             System.out.println(jsonString.trim());
+            AirQuality result = GSON.fromJson(jsonString, AirQuality.class);
+            System.out.println(GSON.toJson(result));
         } catch (Throwable e) {
             System.err.println(e);
         }
