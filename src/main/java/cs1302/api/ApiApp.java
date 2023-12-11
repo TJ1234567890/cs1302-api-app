@@ -208,6 +208,27 @@ public class ApiApp extends Application {
             System.out.println(jsonString.trim());
             AirQuality result = GSON.fromJson(jsonString, AirQuality.class);
             System.out.println(GSON.toJson(result));
+            if (result.status.equals("success")) {
+                Platform.runLater(() -> this.textFlow.getChildren().clear());
+                Data da  = result.data;
+                Current ct  = da.current;
+                Pollution pol = ct.pollution;
+                Weather cast = ct.weather;
+                String t = "Forecast: ";
+                String temp = "\tTemperature: " + cast.pr + " Celsius\n";
+                String pres = "\tAtmospheric Pressure: " + cast.hu + " hPa\n";
+                String hum = "\tHumidity: " + cast.hu + "%\n";
+                String win = "\tWind Speed: " + cast.ws + " m/s\n";
+                String dir = "\tWind Direction: " + cast.wd + " degrees (N=0, E=90, ...)\n";
+                String nam = "Airport :" + airport.name + "\n";
+                String cit = "City :" + airport.city + "\n";
+                String cou = "Country :" + da.country + "\n";
+                Platform.runLater(() -> this.textFlow.getChildren()
+                                  .addAll(new Text(nam), new Text(cit), new Text(cou),
+                                          new Text(t), new Text(temp), new Text(pres),
+                                          new Text(hum), new Text(win), new Text(dir)));
+
+            }
         } catch (Throwable e) {
             System.err.println(e);
             this.alertError(e, uri);
