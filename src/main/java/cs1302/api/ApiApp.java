@@ -196,7 +196,9 @@ public class ApiApp extends Application {
 
             String jsonString = response.body();
             System.out.println(jsonString.trim());
-
+        } catch (Throwable e) {
+            System.err.println(e);
+        }
 
     }
 } // ApiApp
