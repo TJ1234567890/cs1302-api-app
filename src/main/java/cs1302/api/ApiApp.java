@@ -21,6 +21,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.text.TextFlow;
 import javafx.scene.text.Text;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TextArea;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URI;
@@ -127,11 +130,15 @@ public class ApiApp extends Application {
 
     } // start
 
-    private void loadPage() {
-        this.loadButton.setDisable(true);
-        Platform.runLater(() -> this.textFlow.getChildren().clear());
-        this.loadButton.setDisable(false);
-    }
+    public static void alertError(Throwable cause, String URI) {
+        TextArea text = new TextArea("URI: " + URI + "\n\n" +
+                                     "Exception: " + cause.toString());
+        text.setEditable(false);
+          Alert alert = new Alert(AlertType.ERROR);
+          alert.getDialogPane().setContent(text);
+          alert.setResizable(true);
+          alert.showAndWait();
+    } // alertError
 
     private void createAirportLink() {
         String text = this.inputField.getText();
@@ -177,6 +184,7 @@ public class ApiApp extends Application {
             }
         } catch (Throwable e) {
             System.err.println(e);
+            this.alertError(e, uri);
         }
     }
 
@@ -202,6 +210,7 @@ public class ApiApp extends Application {
             System.out.println(GSON.toJson(result));
         } catch (Throwable e) {
             System.err.println(e);
+            this.alertError(e, uri);
         }
 
     }
