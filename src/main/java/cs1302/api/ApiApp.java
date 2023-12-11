@@ -65,6 +65,7 @@ public class ApiApp extends Application {
     Button loadButton;
     ScrollPane textPane;
     TextFlow textFlow;
+    Text prompt;
 
     /**
      * Constructs an {@code ApiApp} object. This default (i.e., no argument)
@@ -80,6 +81,7 @@ public class ApiApp extends Application {
         this.loadButton = new Button("Lead");
         this.textPane = new ScrollPane();
         this.textFlow = new TextFlow();
+        this.prompt = new Text("Search for the forecast at an airport: ");
     } // ApiApp
 
 
@@ -87,7 +89,7 @@ public class ApiApp extends Application {
     @Override
     public void init() {
         HBox.setHgrow(this.inputField, Priority.ALWAYS);
-        this.inputPane.getChildren().addAll(this.inputField, this.loadButton);
+        this.inputPane.getChildren().addAll(this.prompt, this.inputField, this.loadButton);
 
         this.textFlow.getChildren().add(new Text("hehe"));
         this.textFlow.setMaxWidth(630);
@@ -214,20 +216,21 @@ public class ApiApp extends Application {
                 Current ct  = da.current;
                 Pollution pol = ct.pollution;
                 Weather cast = ct.weather;
-                String t = "Forecast: ";
-                String temp = "\tTemperature: " + cast.pr + " Celsius\n";
-                String pres = "\tAtmospheric Pressure: " + cast.hu + " hPa\n";
+                String t = "\nForecast: \n";
+                String temp = "\tTemperature: " + cast.tp + " Celsius\n";
+                String pres = "\tAtmospheric Pressure: " + cast.pr + " hPa\n";
                 String hum = "\tHumidity: " + cast.hu + "%\n";
                 String win = "\tWind Speed: " + cast.ws + " m/s\n";
                 String dir = "\tWind Direction: " + cast.wd + " degrees (N=0, E=90, ...)\n";
-                String nam = "Airport :" + airport.name + "\n";
-                String cit = "City :" + airport.city + "\n";
-                String cou = "Country :" + da.country + "\n";
+                String aqu = "\tAir Quality: " + pol.aqius + " on the AQI with US Standards\n";
+                String aqi = "\tAir Quality: " + pol.aqicn + " on the AQI with Chinese Standards\n";
+                String nam = "Airport: " + airport.name + "\n";
+                String cit = "City: " + airport.city + "\n";
+                String cou = "Country: " + da.country + "\n";
                 Platform.runLater(() -> this.textFlow.getChildren()
                                   .addAll(new Text(nam), new Text(cit), new Text(cou),
                                           new Text(t), new Text(temp), new Text(pres),
                                           new Text(hum), new Text(win), new Text(dir)));
-
             }
         } catch (Throwable e) {
             System.err.println(e);
