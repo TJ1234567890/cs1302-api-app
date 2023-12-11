@@ -8,6 +8,6 @@ public class AirportDetails {
     String name;
     String city;
     String region;
-    double latitude;
-    double longitude;
+    String latitude;
+    String longitude;
 } // AirportDetails

@@ -8,7 +8,7 @@ public class AirQuality {
         Current current;
     }
 
-    public static class Currrent {
+    public static class Current {
         Pollution pollution;
         Weather weather;
     }

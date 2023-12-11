@@ -178,7 +178,7 @@ public class ApiApp extends Application {
         }
     }
 
-    priavte void createIQAirLink(AirportDetails airport) {
+    private void createIQAirLink(AirportDetails airport) {
         String lat = (String) airport.latitude;
         String lon = (String) airport.longitude;
 
