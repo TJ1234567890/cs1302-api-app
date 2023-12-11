@@ -24,6 +24,8 @@ import javafx.scene.text.Text;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextArea;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URI;
@@ -66,6 +68,7 @@ public class ApiApp extends Application {
     ScrollPane textPane;
     TextFlow textFlow;
     Text prompt;
+    Insets pads;
 
     /**
      * Constructs an {@code ApiApp} object. This default (i.e., no argument)
@@ -75,13 +78,14 @@ public class ApiApp extends Application {
         this.stage = null;
         this.scene = null;
 
-        this.root = new VBox();
-        this.inputPane = new HBox();
+        this.root = new VBox(3);
+        this.inputPane = new HBox(2.5);
         this.inputField = new TextField();
         this.loadButton = new Button("Lead");
         this.textPane = new ScrollPane();
         this.textFlow = new TextFlow();
         this.prompt = new Text("Search for the forecast at an airport: ");
+        this.pads = new Insets(3, 3, 3, 3);
     } // ApiApp
 
 
@@ -90,8 +94,10 @@ public class ApiApp extends Application {
     public void init() {
         HBox.setHgrow(this.inputField, Priority.ALWAYS);
         this.inputPane.getChildren().addAll(this.prompt, this.inputField, this.loadButton);
+        this.inputPane.setPadding(pads);
+        this.inputPane.setAlignment(Pos.CENTER_LEFT);
 
-        this.textFlow.getChildren().add(new Text("hehe"));
+        this.textFlow.getChildren().add(new Text("Information will displayed here"));
         this.textFlow.setMaxWidth(630);
         this.textPane.setPrefHeight(480);
         this.textPane.setContent(this.textFlow);
@@ -132,6 +138,16 @@ public class ApiApp extends Application {
 
     } // start
 
+    /**
+     *  This method takes in {@code cause} which is the type of error.
+     *  It also takes in the {@code URI} to see which link caused the error
+     *  Using the two parameters a error message is created to display
+     *  The created error message is displayed on a {@code Alert} window
+     *
+     *  @param cause is the Exception that was caught, will be displyes
+     *  @param URI is the link that created the request that caused an error
+     *  will be used to display message
+     */
     public static void alertError(Throwable cause, String URI) {
         TextArea text = new TextArea("URI: " + URI + "\n\n" +
                                      "Exception: " + cause.toString());
@@ -142,6 +158,19 @@ public class ApiApp extends Application {
           alert.showAndWait();
     } // alertError
 
+    /**
+     *  This method gets the requested search item from {@code inputField}.
+     *  Uses the values that it recieves and encodes it through {@code URLEncoder.encode()}
+     *  Uses {@code StandardCharsets.UTF_8} to encode
+     *  creates a uri string using {@code airportApi} and the formated information
+     *  creates a request to the api and parses it to a class that can access the values
+     *  if not result is provided the method throws an error.
+     *  If there are multiple results to a airport name inputed
+     *  the user is prompted to search specifically from the list provided
+     * once only one result shows up it calls the {@code creatIQAirLink()} method.
+     *
+     *  @throw new IllegalArgumentException
+    */
     private void createAirportLink() {
         String text = this.inputField.getText();
 
@@ -164,6 +193,9 @@ public class ApiApp extends Application {
             AirportDetails[] details = GSON.fromJson(jsonString, AirportDetails[].class);
             System.out.println(GSON.toJson(details));
             System.out.println(details.length);
+            if (details.length == 0) {
+                throw new IllegalArgumentException("Provided input resulted in no results");
+            }
             if (details.length == 1) {
                 AirportDetails airport = details[0];
                 System.out.println("1");
@@ -186,10 +218,21 @@ public class ApiApp extends Application {
             }
         } catch (Throwable e) {
             System.err.println(e);
-            this.alertError(e, uri);
+            Platform.runLater(() -> this.alertError(e, uri));
         }
     }
 
+    /**
+     *  This method takes the paramater {@code airport} and takes the lat and lon of it}.
+     *  Uses the lat and lon that it recieves and encodes it through {@code URLEncoder.encode()}
+     *  Uses {@code StandardCharsets.UTF_8} to encode
+     *  creates a uri string using {@code iqAirApi} and the formated information
+     *  after recieving json. if it has status: success then the code will not throw error
+     *  the code then takes parsed information and displayed it in easy, readable format
+     *
+     *  @param airport is the specific information from one airport that was provided
+     *  @throw IllegalArgumentException
+     */
     private void createIQAirLink(AirportDetails airport) {
         String lat =  airport.latitude;
         String lon =  airport.longitude;
@@ -231,10 +274,12 @@ public class ApiApp extends Application {
                                   .addAll(new Text(nam), new Text(cit), new Text(cou),
                                           new Text(t), new Text(temp), new Text(pres),
                                           new Text(hum), new Text(win), new Text(dir)));
+            } else {
+                throw new IllegalArgumentException("status: failed");
             }
         } catch (Throwable e) {
             System.err.println(e);
-            this.alertError(e, uri);
+            Platform.runLater(() -> this.alertError(e, uri));
         }
 
     }
