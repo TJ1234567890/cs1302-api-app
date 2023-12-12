@@ -186,11 +186,7 @@ public class ApiApp extends Application {
         String name = URLEncoder.encode(text, StandardCharsets.UTF_8);
         String query = String.format("name=%s", name);
         String uri = airportApi + query;
-
-        System.out.println(uri);
-
         try {
-
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .header("X-Api-Key", airportApiKey)
@@ -198,17 +194,14 @@ public class ApiApp extends Application {
             HttpResponse<String> response = HTTP_CLIENT.send(request, BodyHandlers.ofString());
 
             String jsonString = response.body();
-            System.out.println(jsonString.trim());
+            this.loadButton.setDisable(true);
             AirportDetails[] details = GSON.fromJson(jsonString, AirportDetails[].class);
-            System.out.println(GSON.toJson(details));
-            System.out.println(details.length);
             if (details.length == 0) {
                 throw new IllegalArgumentException("Provided input resulted in no results");
             }
             Platform.runLater(() -> this.msg.setText("Loading..."));
             if (details.length == 1) {
                 AirportDetails airport = details[0];
-                System.out.println("1");
                 createIQAirLink(airport);
             } else {
                 Platform.runLater(() -> this.textFlow.getChildren().clear());
@@ -226,9 +219,11 @@ public class ApiApp extends Application {
                                       .addAll(p1, p2, p3, new Text("_________________________\n")));
                 }
                 Platform.runLater(() -> this.msg.setText("Please Re-Input the Airport you desire"));
+                this.loadButton.setDisable(false);
             }
         } catch (Throwable e) {
             System.err.println(e);
+            this.loadButton.setDisable(false);
             Platform.runLater(() -> this.alertError(e, uri));
         }
     }
@@ -252,8 +247,6 @@ public class ApiApp extends Application {
         String lonTra = URLEncoder.encode(lon, StandardCharsets.UTF_8);
         String query = String.format("lat=%s&lon=%s&key=%s", latTra, lonTra, iqAirApiKey);
         String uri = iqAirApi + query;
-
-        System.out.println(uri);
         try {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -261,9 +254,7 @@ public class ApiApp extends Application {
             HttpResponse<String> response = HTTP_CLIENT.send(request, BodyHandlers.ofString());
 
             String jsonString = response.body();
-            System.out.println(jsonString.trim());
             AirQuality result = GSON.fromJson(jsonString, AirQuality.class);
-            System.out.println(GSON.toJson(result));
             if (result.status.equals("success")) {
                 Platform.runLater(() -> this.textFlow.getChildren().clear());
                 Data da  = result.data;
@@ -304,11 +295,13 @@ public class ApiApp extends Application {
                                           new Text(Uh)));
                 String fin = "Forecast Information Provided Below";
                 Platform.runLater(() -> this.msg.setText(fin));
+                this.loadButton.setDisable(false);
             } else {
                 throw new IllegalArgumentException("status: failed");
             }
         } catch (Throwable e) {
             System.err.println(e);
+            this.loadButton.setDisable(false);
             Platform.runLater(() -> this.alertError(e, uri));
         }
 
