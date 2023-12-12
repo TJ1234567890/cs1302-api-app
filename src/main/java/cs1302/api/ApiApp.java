@@ -81,10 +81,10 @@ public class ApiApp extends Application {
         this.root = new VBox(3);
         this.inputPane = new HBox(2.5);
         this.inputField = new TextField();
-        this.loadButton = new Button("Lead");
+        this.loadButton = new Button("Load");
         this.textPane = new ScrollPane();
         this.textFlow = new TextFlow();
-        this.prompt = new Text("Search for the forecast at an airport: ");
+        this.prompt = new Text("Enter name of an Airport: ");
         this.pads = new Insets(3, 3, 3, 3);
     } // ApiApp
 
@@ -97,12 +97,14 @@ public class ApiApp extends Application {
         this.inputPane.setPadding(pads);
         this.inputPane.setAlignment(Pos.CENTER_LEFT);
 
-        this.textFlow.getChildren().add(new Text("Information will displayed here"));
-        this.textFlow.setMaxWidth(630);
-        this.textPane.setPrefHeight(480);
+        Text pri = new Text("Forecast Information about the location will be displayed here");
+        this.textFlow.getChildren().add(pri);
+        this.textFlow.setMaxWidth(600);
+        this.textPane.setPrefHeight(350);
         this.textPane.setContent(this.textFlow);
 
         this.root.getChildren().addAll(this.inputPane, this.textPane);
+        this.root.setPadding(pads);
         this.loadButton.setOnAction(event -> {
             Thread t = new Thread(() -> this.createAirportLink());
             t.setDaemon(true);
@@ -264,16 +266,34 @@ public class ApiApp extends Application {
                 String pres = "\tAtmospheric Pressure: " + cast.pr + " hPa\n";
                 String hum = "\tHumidity: " + cast.hu + "%\n";
                 String win = "\tWind Speed: " + cast.ws + " m/s\n";
-                String dir = "\tWind Direction: " + cast.wd + " degrees (N=0, E=90, ...)\n";
-                String aqu = "\tAir Quality: " + pol.aqius + " on the AQI with US Standards\n";
-                String aqi = "\tAir Quality: " + pol.aqicn + " on the AQI with Chinese Standards\n";
+                String dir = "\tWind Direction: " + cast.wd + " degrees (N=0, E=90, W=270, S=360)";
                 String nam = "Airport: " + airport.name + "\n";
                 String cit = "City: " + airport.city + "\n";
                 String cou = "Country: " + da.country + "\n";
+                String coor = "Latitude: " + lat + "\n";
+                String cor = "Longitude: " + lon + "\n";
                 Platform.runLater(() -> this.textFlow.getChildren()
                                   .addAll(new Text(nam), new Text(cit), new Text(cou),
-                                          new Text(t), new Text(temp), new Text(pres),
-                                          new Text(hum), new Text(win), new Text(dir)));
+                                          new Text(coor), new Text(cor), new Text(t),
+                                          new Text(temp), new Text(pres), new Text(hum),
+                                          new Text(win), new Text(dir)));
+                String p = "\nPollutants: \n";
+                String aqu = "\tAir Quality: " + pol.aqius + " on the AQI with US Standards\n";
+                String mus = "\tMain Pollutant: " + classify(pol.mainus) + "Based on US AQI)\n";
+                String aqi = "\tAir Quality: " + pol.aqicn + " on the AQI with Chinese Standards\n";
+                String mcn = "\tMain Pollutant: " + classify(pol.maincn) + "Based on Chinese AQI)";
+
+                String table = "\n\n\n\t  Air Quality Index (AQI)\n";
+                String Gd = "\t     0-50 = Good\n";
+                String Md = "\t   51-100 = Moderate\n";
+                String Ug = "  101-150 = Unhealthy for Sensitive people\n";
+                String Uh = "\t   151-200 = Unhealthy\n";
+                Platform.runLater(() -> this.textFlow.getChildren()
+                                  .addAll(new Text(p), new Text(aqu), new Text(mus),
+                                          new Text(aqi), new Text(mcn), new Text(table),
+                                          new Text(Gd), new Text(Md), new Text(Ug),
+                                          new Text(Uh)));
+
             } else {
                 throw new IllegalArgumentException("status: failed");
             }
@@ -281,6 +301,26 @@ public class ApiApp extends Application {
             System.err.println(e);
             Platform.runLater(() -> this.alertError(e, uri));
         }
+
+    }
+
+    private String classify(String pollutant) {
+        if (pollutant.equals("p2")) {
+            return "pm2.5 (";
+        } else if (pollutant.equals("p1")) {
+            return "pm10 (";
+        } else if (pollutant.equals("o3")) {
+            return "Ozone (O3) (";
+        } else if (pollutant.equals("n2")) {
+            return "Nitrogen dioxide (NO2) (";
+        } else if (pollutant.equals("s2")) {
+            return "Sulfur dioxide (SO2) (";
+        } else if (pollutant.equals("co")) {
+            return "Carbon monoxide (CO) (";
+        }
+        return pollutant;
+
+
 
     }
 } // ApiApp
