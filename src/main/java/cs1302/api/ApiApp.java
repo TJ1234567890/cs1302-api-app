@@ -152,10 +152,10 @@ public class ApiApp extends Application {
         TextArea text = new TextArea("URI: " + URI + "\n\n" +
                                      "Exception: " + cause.toString());
         text.setEditable(false);
-          Alert alert = new Alert(AlertType.ERROR);
-          alert.getDialogPane().setContent(text);
-          alert.setResizable(true);
-          alert.showAndWait();
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.getDialogPane().setContent(text);
+        alert.setResizable(true);
+        alert.showAndWait();
     } // alertError
 
     /**
@@ -193,7 +193,11 @@ public class ApiApp extends Application {
             Platform.runLater(() -> this.msg.setText("Loading..."));
             if (details.length == 1) {
                 AirportDetails airport = details[0];
-                createIQAirLink(airport);
+                String latTra = URLEncoder.encode(airport.latitude, StandardCharsets.UTF_8);
+                String lonTra = URLEncoder.encode(airport.longitude, StandardCharsets.UTF_8);
+                String quer = String.format("lat=%s&lon=%s&key=%s", latTra, lonTra, iqAirApiKey);
+                String url = iqAirApi + quer;
+                createIQAirLink(url, airport);
             } else {
                 Platform.runLater(() -> this.textFlow.getChildren().clear());
                 String print = "There is no airport named \"" + text + "\" you were looking for:\n";
@@ -228,22 +232,15 @@ public class ApiApp extends Application {
      *  the code then takes parsed information and displayed it in easy, readable format
      *
      *  @param airport is the specific information from one airport that was provided
+     *  @param uri is the link used to request the HTTP
      *  @throw IllegalArgumentException
      */
-    private void createIQAirLink(AirportDetails airport) {
-        String lat =  airport.latitude;
-        String lon =  airport.longitude;
-
-        String latTra = URLEncoder.encode(lat, StandardCharsets.UTF_8);
-        String lonTra = URLEncoder.encode(lon, StandardCharsets.UTF_8);
-        String query = String.format("lat=%s&lon=%s&key=%s", latTra, lonTra, iqAirApiKey);
-        String uri = iqAirApi + query;
+    private void createIQAirLink(String uri, AirportDetails airport) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .build();
             HttpResponse<String> response = HTTP_CLIENT.send(request, BodyHandlers.ofString());
-
             String jsonString = response.body();
             AirQuality result = GSON.fromJson(jsonString, AirQuality.class);
             if (result.status.equals("success")) {
@@ -261,8 +258,8 @@ public class ApiApp extends Application {
                 String nam = "Airport: " + airport.name + "\n";
                 String cit = "City: " + airport.city + "\n";
                 String cou = "Country: " + da.country + "\n";
-                String coor = "Latitude: " + lat + "\n";
-                String cor = "Longitude: " + lon + "\n";
+                String coor = "Latitude: " + airport.latitude + "\n";
+                String cor = "Longitude: " + airport.longitude + "\n";
                 Platform.runLater(() -> this.textFlow.getChildren()
                                   .addAll(new Text(nam), new Text(cit), new Text(cou),
                                           new Text(coor), new Text(cor), new Text(t),
