@@ -63,12 +63,14 @@ public class ApiApp extends Application {
     Scene scene;
     VBox root;
     HBox inputPane;
+    HBox container;
     TextField inputField;
     Button loadButton;
     ScrollPane textPane;
     TextFlow textFlow;
     Text prompt;
     Insets pads;
+    Text msg;
 
     /**
      * Constructs an {@code ApiApp} object. This default (i.e., no argument)
@@ -80,11 +82,13 @@ public class ApiApp extends Application {
 
         this.root = new VBox(3);
         this.inputPane = new HBox(2.5);
+        this.container = new HBox();
         this.inputField = new TextField();
         this.loadButton = new Button("Load");
         this.textPane = new ScrollPane();
         this.textFlow = new TextFlow();
         this.prompt = new Text("Enter name of an Airport: ");
+        this.msg = new Text("Forecast Information about the location will be displayed here");
         this.pads = new Insets(3, 3, 3, 3);
     } // ApiApp
 
@@ -97,13 +101,17 @@ public class ApiApp extends Application {
         this.inputPane.setPadding(pads);
         this.inputPane.setAlignment(Pos.CENTER_LEFT);
 
-        Text pri = new Text("Forecast Information about the location will be displayed here");
+        this.container.getChildren().addAll(this.msg);
+        this.container.setAlignment(Pos.CENTER);
+        this.container.setPadding(pads);
+
+        Text pri = new Text("");
         this.textFlow.getChildren().add(pri);
         this.textFlow.setMaxWidth(600);
         this.textPane.setPrefHeight(350);
         this.textPane.setContent(this.textFlow);
 
-        this.root.getChildren().addAll(this.inputPane, this.textPane);
+        this.root.getChildren().addAll(this.inputPane, this.container, this.textPane);
         this.root.setPadding(pads);
         this.loadButton.setOnAction(event -> {
             Thread t = new Thread(() -> this.createAirportLink());
@@ -198,6 +206,7 @@ public class ApiApp extends Application {
             if (details.length == 0) {
                 throw new IllegalArgumentException("Provided input resulted in no results");
             }
+            Platform.runLater(() -> this.msg.setText("Loading..."));
             if (details.length == 1) {
                 AirportDetails airport = details[0];
                 System.out.println("1");
@@ -217,6 +226,7 @@ public class ApiApp extends Application {
                     Platform.runLater(() -> this.textFlow.getChildren()
                                       .addAll(p1, p2, p3, new Text("_________________________\n")));
                 }
+                Platform.runLater(() -> this.msg.setText("Please Re-Input the Airport you desire"));
             }
         } catch (Throwable e) {
             System.err.println(e);
@@ -293,7 +303,8 @@ public class ApiApp extends Application {
                                           new Text(aqi), new Text(mcn), new Text(table),
                                           new Text(Gd), new Text(Md), new Text(Ug),
                                           new Text(Uh)));
-
+                String fin = "Forecast Information Provided Below";
+                Platform.runLater(() -> this.msg.setText(fin));
             } else {
                 throw new IllegalArgumentException("status: failed");
             }
