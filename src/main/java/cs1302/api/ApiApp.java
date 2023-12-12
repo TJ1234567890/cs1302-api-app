@@ -53,12 +53,15 @@ public class ApiApp extends Application {
         .setPrettyPrinting()                          // enable nice output when printing
         .create();                                    // builds and returns a Gson object
 
+    /** This is the beginning of Api1 and the key for Api1. */
     private final String airportApi = "https://api.api-ninjas.com/v1/airports?";
     private final String airportApiKey = "k78n1Pfwf3a187lpaKSAJQ==obe3ESp43nX7LAGL";
 
+    /** This is the beginning of Api2 and the key for Api2. */
     private final String iqAirApi = "http://api.airvisual.com/v2/nearest_city?";
     private final String iqAirApiKey = "4e1e0d5d-e9ba-45af-9c11-f61a94c13c49";
 
+    /** These variables create the aplication and how it looks. */
     Stage stage;
     Scene scene;
     VBox root;
@@ -93,7 +96,7 @@ public class ApiApp extends Application {
     } // ApiApp
 
 
-
+    /** {@inheritDoc} */
     @Override
     public void init() {
         HBox.setHgrow(this.inputField, Priority.ALWAYS);
@@ -125,20 +128,16 @@ public class ApiApp extends Application {
     public void start(Stage stage) {
 
         this.stage = stage;
-
         // demonstrate how to load local asset using "file:resources/"
         Image bannerImage = new Image("file:resources/readme-banner.png");
         ImageView banner = new ImageView(bannerImage);
         banner.setPreserveRatio(true);
         banner.setFitWidth(640);
-
-        // some labels to display information
-        Label notice = new Label("Modify the starter code to suit your needs.");
-
+        //Lable
+        Label hehe = new Label("I decided to leave the banner Image in because its funny");
         // setup scene
-        root.getChildren().addAll(banner, notice);
+        root.getChildren().addAll(banner, hehe);
         scene = new Scene(root);
-
         // setup stage
         stage.setTitle("ApiApp!");
         stage.setScene(scene);
@@ -235,7 +234,7 @@ public class ApiApp extends Application {
     }
 
     /**
-     *  This method takes the paramater {@code airport} and takes the lat and lon of it}.
+     *  This method takes the paramater {@code airport} and takes the lat and lon of it.
      *  Uses the lat and lon that it recieves and encodes it through {@code URLEncoder.encode()}
      *  Uses {@code StandardCharsets.UTF_8} to encode
      *  creates a uri string using {@code iqAirApi} and the formated information
@@ -315,6 +314,15 @@ public class ApiApp extends Application {
 
     }
 
+    /**
+     *  This helps expand the type of pollutant that the JsonString gives.
+     *  The parameter {@code pollutant} can only be 6 possible strings.
+     *  So if the pollutant is not one of the 6 possibel strings then it does not
+     *  get expanded uppon.
+     *
+     *  @param pollutant - type of pollutant shortened due to API documentation
+     *  @return String that is the expanded version of the shortened pollutant
+     */
     private String classify(String pollutant) {
         if (pollutant.equals("p2")) {
             return "pm2.5 (";
@@ -330,8 +338,5 @@ public class ApiApp extends Application {
             return "Carbon monoxide (CO) (";
         }
         return pollutant;
-
-
-
     }
 } // ApiApp
