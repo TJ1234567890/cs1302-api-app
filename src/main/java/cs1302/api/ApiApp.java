@@ -91,7 +91,7 @@ public class ApiApp extends Application {
         this.textPane = new ScrollPane();
         this.textFlow = new TextFlow();
         this.prompt = new Text("Enter name of an Airport: ");
-        this.msg = new Text("Forecast Information about the location will be displayed here");
+        this.msg = new Text("Forecast Information about the location will be displayed below");
         this.pads = new Insets(3, 3, 3, 3);
     } // ApiApp
 
@@ -110,8 +110,9 @@ public class ApiApp extends Application {
 
         Text pri = new Text("");
         this.textFlow.getChildren().add(pri);
-        this.textFlow.setMaxWidth(600);
-        this.textPane.setPrefHeight(350);
+        this.textFlow.setMaxWidth(650);
+        this.textPane.setPrefHeight(450);
+        this.textPane.setPrefWidth(650);
         this.textPane.setContent(this.textFlow);
 
         this.root.getChildren().addAll(this.inputPane, this.container, this.textPane);
@@ -128,17 +129,7 @@ public class ApiApp extends Application {
     public void start(Stage stage) {
 
         this.stage = stage;
-        // demonstrate how to load local asset using "file:resources/"
-        Image bannerImage = new Image("file:resources/readme-banner.png");
-        ImageView banner = new ImageView(bannerImage);
-        banner.setPreserveRatio(true);
-        banner.setFitWidth(640);
-        //Lable
-        Label hehe = new Label("I decided to leave the banner Image in because its funny");
-        // setup scene
-        root.getChildren().addAll(banner, hehe);
-        scene = new Scene(root);
-        // setup stage
+        this.scene = new Scene(root);
         stage.setTitle("ApiApp!");
         stage.setScene(scene);
         stage.setOnCloseRequest(event -> Platform.exit());
